@@ -1,0 +1,120 @@
+.top-bar {
+    background: var(--primary-color);
+    padding: 1rem 3rem;
+    text-align: end;
+    border-bottom: 2px solid var(--white-color);
+}
+
+.top-bar .profile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    cursor: pointer;
+}
+
+.top-bar .profile img {
+    width: 40px;
+}
+
+.top-bar p {
+    color: var(--white-color);
+    text-transform: none;
+    font-size: 16px;
+    display: inline;
+}
+
+.profile-dropdown {
+    width: 15rem;
+    height: fit-content;
+    background: var(--white-color);
+    position: absolute;
+    right: 0;
+    margin-top: .5rem;
+    margin-right: 2rem;
+    text-align: left;
+    border: 2px solid var(--neutral-color);
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.profile-dropdown .profile-header {
+    background: var(--primary-color);
+    color: var(--primary-color);
+    padding: 1rem;
+    border-bottom: 2px solid var(--neutral-color);
+    font-weight: 600;
+    font-size: 20px;
+    text-transform: capitalize;
+    color: var(--white-color);
+}
+
+.profile-dropdown ul {
+    list-style: none;
+}
+
+.profile-dropdown ul li {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 1rem 1rem;
+}
+
+.profile-dropdown ul li:hover {
+    background: var(--text-color);
+    border-bottom: 1px solid var(--primary-color);
+}
+
+
+.sidebar {
+    background: var(--bg-color);
+    min-height: 100vh;
+    width: 15%;
+    color: var(--primary-color);
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+    font-weight: 600;
+    border-right: 2px solid #EBEBEB;
+}
+
+.sidebar img {
+    width: 10rem;
+    margin-left: 2rem;
+}
+
+.sidebar ul {
+    margin-top: 2rem;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar ul li {
+    margin: .2rem 2rem;
+    padding: .6rem 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: all .3s ease-in-out;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    border-radius: 22px;
+    color: #7A86A1;
+    font-size: 16px;
+}
+
+.sidebar ul .active {
+    background: var(--primary-color);
+    color: var(--white-color);
+}
+
+.sidebar ul li:hover {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}

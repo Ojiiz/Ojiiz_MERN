@@ -1,0 +1,205 @@
+/* SkeletonLoader.css */
+
+
+@keyframes reflect {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.skeleton {
+    background: #e0e0e0;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200px 100%;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(110deg, rgba(227, 227, 227, 0) 0%, rgba(227, 227, 227, 0) 40%, rgba(227, 227, 227, 0.5) 50%, rgba(227, 227, 227, 0) 60%, rgba(227, 227, 227, 0) 100%);
+    animation: reflect 1.2s linear infinite;
+}
+
+.skeleton-title {
+    background-color: #ccc;
+    height: 30px;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.job-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.job-overview .overview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.job-overview-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.vertical-line {
+    border-left: 1px solid #ccc;
+    height: 40px;
+    margin: 0 20px;
+}
+
+.skeleton-icon {
+    background-color: #ccc;
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.skeleton-text {
+    background-color: #ccc;
+    height: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.skeleton-text:last-child {
+    margin-bottom: 0;
+}
+
+.skeleton-title {
+    background-color: #ccc;
+    height: 24px;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.save-btn {
+    background-color: #ccc;
+    height: 24px;
+    width: 24px;
+    margin-right: 10px;
+    border: none;
+}
+
+.detail-btn {
+    background-color: #ccc;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.job-desc {
+    margin-top: 20px;
+}
+
+.skeleton .hidden {
+    display: none;
+}
+
+.more-job-section {
+    margin-top: 20px;
+}
+
+.more-job {
+    background-color: #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+
+
+/* for job page */
+/* SkeletonJobs.css */
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-job-box {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    max-width: 950px;
+    min-width: 60%;
+}
+
+.skeleton-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 3.3s infinite linear;
+}
+
+.skeleton-job-description {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-page-title {
+    width: 50%;
+    height: 20px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 2.3s infinite linear;
+}
+
+.skeleton-page-info {
+    width: 70%;
+    height: 16px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 2.3s infinite linear;
+}
+
+.skeleton-page-text {
+    width: 100%;
+    height: 80px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 2.3s infinite linear;
+}

@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+:root {
+
+  /* font fmaily */
+  --font-family-reg: 'Inter';
+
+  /* background color */
+  --bg-color: #ffffff;
+
+  /* colors */
+  --primary-color: #706BEB;
+  --secondary-color: #EBB1FF;
+  --accent-color: #243459;
+  --text-color: #141414;
+  --neutral-color: #212121;
+  --white-color: #ffffff;
+
+}
