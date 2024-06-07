@@ -19,22 +19,41 @@ const SavedJobs = () => {
         const fetchSavedJobs = async () => {
             try {
                 setIsLoading(true);
-                // Fetch user data
                 const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
-                const data = await response.json();
+                const userData = await response.json();
+                const savedJobsIds = userData.user.savedJobs.map(savedJob => savedJob.job_id);
 
-                // Get saved jobs from user data
-                const savedJobsIds = data.user.savedJobs.map(savedJob => savedJob.job_id);
+                const jobsPromises = savedJobsIds.map(async jobId => {
+                    const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`);
+                    const jobData = await jobResponse.json();
 
-                // Fetch job details for each saved job
-                const jobsPromises = savedJobsIds.map(jobId =>
-                    fetch(`${API_URL}/api/ojiiz/job/${jobId}`)
-                        .then(response => response.json())
+                    // If the job exists, return it along with the savedJob details
+                    if (jobData.error) {
+
+                        toast.warn(`job is no longer exist.`);
+                        // If the job does not exist, delete it from the server and remove it from userData.user.savedJobs
+                        await deleteJobFromServer(jobId);
+                        const jobIndex = userData.user.savedJobs.findIndex(job => job.job_id === jobId);
+                        if (jobIndex !== -1) {
+                            userData.user.savedJobs.splice(jobIndex, 1); // Remove the job from savedJobs
+                        }
+                        return null; // Return null to indicate deletion
+                    };
+                }
                 );
 
-                // Resolve all promises
                 const jobsData = await Promise.all(jobsPromises);
-                setSavedJobs(jobsData);
+
+                // Filter out any null values (jobs that were deleted)
+                const filteredJobsData = jobsData.filter(job => job !== null);
+
+                // Update state with fetched jobs data
+                setSavedJobs(filteredJobsData.map(job => ({
+                    ...job,
+                    isDeleted: false // Assuming you want to mark non-existing jobs as deleted
+                })));
+
+                // No need to update the user profile since we're deleting jobs from the server
             } catch (error) {
                 console.error('Error fetching saved jobs:', error);
                 toast.error('Error fetching saved jobs:', error);
@@ -42,6 +61,24 @@ const SavedJobs = () => {
                 setIsLoading(false);
             }
         };
+
+        async function deleteJobFromServer(jobId) {
+            try {
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}/saved-jobs/${jobId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete job');
+                }
+            } catch (error) {
+                console.error('Error deleting job:', error);
+                toast.error('Error deleting job:', error.message);
+            }
+        }
 
         fetchSavedJobs();
     }, [API_URL, ojiiz_user.userName]);
@@ -77,7 +114,6 @@ const SavedJobs = () => {
         }
         return pages;
     };
-
     return (
         <div>
             <div className="jobDetail-navbar">
@@ -88,6 +124,7 @@ const SavedJobs = () => {
             {isLoading &&
                 <div className="loader"></div>
             }
+
             <div className="saved-content">
                 <SideBar />
                 <div style={{ paddingBottom: '50px', width: '100%' }}>

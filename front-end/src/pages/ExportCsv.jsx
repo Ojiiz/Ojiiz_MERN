@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { NavBar, SideBar } from '../components';
+import React, { useState, useEffect, useRef } from 'react';
+import { NavBar, SideBar, FieldSelectionPopup } from '../components';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaEye } from "react-icons/fa";
 import { CSVLink } from 'react-csv';
 import { MdDelete } from "react-icons/md";
-import saveJobImg from '../assets/save-job.png'
+import saveJobImg from '../assets/save-job.png';
 
 const ExportCsv = () => {
     const [savedJobs, setSavedJobs] = useState([]);
@@ -16,6 +16,10 @@ const ExportCsv = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [jobsPerPage] = useState(20);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showFieldPopup, setShowFieldPopup] = useState(false);
+    const [csvData, setCsvData] = useState([]);
+    const [csvHeaders, setCsvHeaders] = useState([]);
+    const csvLinkRef = useRef(); // Reference for CSVLink
 
     const { ojiiz_user } = useAuthContext();
     const API_URL = process.env.REACT_APP_BASE_API_URL;
@@ -24,31 +28,46 @@ const ExportCsv = () => {
         const fetchSavedJobs = async () => {
             try {
                 setIsLoading(true);
-                // Fetch user data
                 const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
                 const userData = await response.json();
-
-                // Get saved jobs from user data
                 const savedJobsIds = userData.user.savedJobs.map(savedJob => savedJob.job_id);
 
-                // Fetch job details for each saved job
                 const jobsPromises = savedJobsIds.map(async jobId => {
                     const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`);
                     const jobData = await jobResponse.json();
 
-                    // Find the saved job from user data
-                    const savedJob = userData.user.savedJobs.find(job => job.job_id === jobId);
-
-                    return {
-                        ...jobData,
-                        mainCredit: savedJob.mainCredit,
-                        phoneCredit: savedJob.phoneCredit
-                    };
+                    // If the job exists, return it along with the savedJob details
+                    if (!jobData.error) {
+                        const savedJob = userData.user.savedJobs.find(job => job.job_id === jobId);
+                        return {
+                            ...jobData,
+                            mainCredit: savedJob.mainCredit,
+                            phoneCredit: savedJob.phoneCredit
+                        };
+                    } else {
+                        toast.warn(`job is no longer exist.`);
+                        // If the job does not exist, delete it from the server and remove it from userData.user.savedJobs
+                        await deleteJobFromServer(jobId);
+                        const jobIndex = userData.user.savedJobs.findIndex(job => job.job_id === jobId);
+                        if (jobIndex !== -1) {
+                            userData.user.savedJobs.splice(jobIndex, 1); // Remove the job from savedJobs
+                        }
+                        return null; // Return null to indicate deletion
+                    }
                 });
 
-                // Resolve all promises
                 const jobsData = await Promise.all(jobsPromises);
-                setSavedJobs(jobsData);
+
+                // Filter out any null values (jobs that were deleted)
+                const filteredJobsData = jobsData.filter(job => job !== null);
+
+                // Update state with fetched jobs data
+                setSavedJobs(filteredJobsData.map(job => ({
+                    ...job,
+                    isDeleted: false // Assuming you want to mark non-existing jobs as deleted
+                })));
+
+                // No need to update the user profile since we're deleting jobs from the server
             } catch (error) {
                 console.error('Error fetching saved jobs:', error);
                 toast.error('Error fetching saved jobs:', error);
@@ -57,27 +76,46 @@ const ExportCsv = () => {
             }
         };
 
+        async function deleteJobFromServer(jobId) {
+            try {
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}/saved-jobs/${jobId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete job');
+                }
+            } catch (error) {
+                console.error('Error deleting job:', error);
+                toast.error('Error deleting job:', error.message);
+            }
+        }
+
         fetchSavedJobs();
     }, [API_URL, ojiiz_user.userName]);
 
-    // Scroll to top when currentPage changes
+
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentPage]);
 
-    // Calculate the jobs to display on the current page
     const indexOfLastJob = currentPage * jobsPerPage;
     const indexOfFirstJob = indexOfLastJob - jobsPerPage;
 
     const currentJobsFiltered = savedJobs.filter(
         job =>
-            job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            job.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+            !job.isDeleted ?
+                (job.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    job.companyName?.toLowerCase().includes(searchTerm.toLowerCase())) :
+                'Job is Deleted'
     );
+
 
     const currentJobs = currentJobsFiltered.slice(indexOfFirstJob, indexOfLastJob);
 
-    // Handle pagination click
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
     const totalPages = Math.ceil(currentJobsFiltered.length / jobsPerPage);
@@ -117,7 +155,7 @@ const ExportCsv = () => {
         }
     };
 
-    const csvHeaders = [
+    const allHeaders = [
         { label: "Sr#", key: "srNo" },
         { label: "Job Title", key: "jobTitle" },
         { label: "Company Name", key: "companyName" },
@@ -126,7 +164,7 @@ const ExportCsv = () => {
         { label: "Linkedin", key: "linkedin" },
         { label: "Company Phone", key: "companyPhone" },
         { label: "Job Date", key: "jobDate" },
-        { label: "Job Description", key: "jobDescription" } // Added jobDescription
+        { label: "Job Description", key: "jobDescription" }
     ];
 
     const htmlToPlainText = (html) => {
@@ -134,47 +172,48 @@ const ExportCsv = () => {
         return doc.body.textContent || "";
     };
 
-    const csvData = currentJobs.map((job, index) => {
-        // Parse the job date
-        const jobDate = new Date(job.jobDate);
-        // Format the date to 'YYYY-MM-DD'
-        const formattedJobDate = jobDate.toISOString().split('T')[0];
+    const prepareCsvData = (selectedFields) => {
+        const data = selectedJobs.map((job, index) => {
+            const jobDate = new Date(job.jobDate);
+            const formattedJobDate = jobDate.toISOString().split('T')[0];
+            const plainTextJobDescription = htmlToPlainText(job.jobDetail);
 
-        // Strip HTML tags from job description
-        const plainTextJobDescription = htmlToPlainText(job.jobDetail);
+            const jobData = {
+                srNo: index + 1,
+                jobTitle: job.jobTitle,
+            };
 
-        const jobData = {
-            srNo: indexOfFirstJob + index + 1,
-            jobTitle: job.jobTitle,
-            companyName: job.companyName,
-            jobDate: formattedJobDate,
-            jobDescription: plainTextJobDescription, // Add plain text job description
-        };
+            if (selectedFields.includes("companyName")) jobData.companyName = job.companyName;
+            if (selectedFields.includes("postedBy")) jobData.postedBy = job.mainCredit ? job.postedBy : 'Buy oz to access these Info';
+            if (selectedFields.includes("email")) jobData.email = job.mainCredit ? job.email : 'Buy oz to access these Info';
+            if (selectedFields.includes("linkedin")) jobData.linkedin = job.mainCredit ? job.linkedin : 'Buy oz to access these Info';
+            if (selectedFields.includes("companyPhone")) jobData.companyPhone = job.mainCredit && job.phoneCredit ? job.companyPhone : 'Buy oz to access these Info';
+            if (selectedFields.includes("jobDate")) jobData.jobDate = formattedJobDate;
+            if (selectedFields.includes("jobDescription")) jobData.jobDescription = plainTextJobDescription;
 
-        if (job.mainCredit) {
-            jobData.postedBy = job.postedBy;
-            jobData.email = job.email;
-            jobData.linkedin = job.linkedin;
-        } else {
-            jobData.postedBy = 'Buy oz to access these Info';
-            jobData.email = 'Buy oz to access these Info';
-            jobData.linkedin = 'Buy oz to access these Info';
-        }
+            return jobData;
+        });
 
-        if (job.mainCredit && job.phoneCredit) {
-            jobData.companyPhone = job.companyPhone;
-        } else {
-            jobData.companyPhone = 'Buy oz to access these Info';
-        }
+        // Set csv headers based on selected fields
+        const headers = allHeaders.filter(header => selectedFields.includes(header.key) || header.key === "srNo" || header.key === "jobTitle");
+        setCsvHeaders(headers);
 
-        return jobData;
-    });
+        return data;
+    };
 
-    // Function to handle job deletion
+    const handleExport = (selectedFields) => {
+        const data = prepareCsvData(selectedFields);
+        setCsvData(data);
+        setShowFieldPopup(false);
+        setTimeout(() => {
+            csvLinkRef.current.link.click(); // Trigger CSV download
+        }, 100);
+    };
+
     const handleDeleteJob = async (jobId) => {
         const confirmed = window.confirm('Are you sure you want to delete this job?');
         if (!confirmed) {
-            return; // Abort deletion if not confirmed
+            return;
         }
 
         try {
@@ -189,7 +228,6 @@ const ExportCsv = () => {
                 throw new Error('Failed to delete job');
             }
 
-            // Update the state to remove the deleted job
             setSavedJobs(prevJobs => prevJobs.filter(job => job._id !== jobId));
             toast.success('Job deleted successfully');
         } catch (error) {
@@ -226,20 +264,16 @@ const ExportCsv = () => {
                                 {selectedJobs.length === currentJobs.length ? 'Deselect All' : 'Select All'}
                             </button>
 
-                            <button className="export">
-                                {selectedJobs.length > 0 && (
-                                    <CSVLink
-                                        data={csvData}
-                                        headers={csvHeaders}
-                                        filename={"saved_jobs.csv"}
-                                        className="primary-button"
-                                    >
-                                        Export CSV
-                                    </CSVLink>
-                                )}
+                            <button
+                                onClick={() => setShowFieldPopup(true)}
+                                className="primary-button"
+                                disabled={selectedJobs.length === 0}
+                            >
+                                Export CSV
                             </button>
                         </div>
                     </div>
+
                     {savedJobs.length > 0 ? (
                         <div>
                             <div className="table-wrapper">
@@ -258,35 +292,43 @@ const ExportCsv = () => {
                                     </thead>
                                     <tbody>
                                         {currentJobs.map((job, index) => (
-                                            <tr key={job._id}>
-                                                <td>{indexOfFirstJob + index + 1}</td>
-                                                <td>{job.jobTitle}</td>
-                                                <td>{job.jobCategory}</td>
-                                                <td>{job.mainCredit ? job.companyName : 'Not Available'}</td>
-                                                <td>{job.phoneCredit ? job.companyPhone : 'Not Available'}</td>
-                                                <td>{job.jobDate.split('T')[0]}</td>
-                                                <td>
-                                                    <Link to={`/jobs-detail/${job._id}`}><FaEye size={24} className='icon' color='var(--secondary-color)' /></Link>
-                                                    <MdDelete size={24} className='icon' color='#fa4444' onClick={() => handleDeleteJob(job._id)} />
-                                                </td>
-                                                <td>
-                                                    <label className="cyberpunk-checkbox-label">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="cyberpunk-checkbox"
-                                                            onChange={() => handleCheckboxChange(job)}
-                                                            checked={selectedJobs.some(selectedJob => selectedJob._id === job._id)}
-                                                        />
-                                                    </label>
-                                                </td>
-                                            </tr>
+                                            job.isDeleted ? (
+                                                <tr key={job._id} className={job.isDeleted ? 'delete-job' : ''}>
+                                                    <td>{index + 1}</td>
+                                                    <td colSpan="9">This job no longer exists.</td>
+                                                </tr>
+                                            ) : (
+                                                <tr key={job._id}>
+                                                    <td>{indexOfFirstJob + index + 1}</td>
+                                                    <td>{job.jobTitle}</td>
+                                                    <td>{job.jobCategory}</td>
+                                                    <td>{job.mainCredit ? job.companyName : 'Not Available'}</td>
+                                                    <td>{job.phoneCredit ? job.companyPhone : 'Not Available'}</td>
+                                                    <td>{job.jobDate.split('T')[0]}</td>
+                                                    <td>
+                                                        <Link to={`/jobs-detail/${job._id}`}><FaEye size={24} className='icon' color='var(--secondary-color)' /></Link>
+                                                        <MdDelete size={24} className='icon' color='#fa4444' onClick={() => handleDeleteJob(job._id)} />
+                                                    </td>
+                                                    <td>
+                                                        <label className="cyberpunk-checkbox-label">
+                                                            <input
+                                                                type="checkbox"
+                                                                className="cyberpunk-checkbox"
+                                                                onChange={() => handleCheckboxChange(job)}
+                                                                checked={selectedJobs.some(selectedJob => selectedJob._id === job._id)}
+                                                            />
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            )
                                         ))}
+
+
                                     </tbody>
 
                                 </table>
                             </div>
 
-                            {/* Pagination */}
                             <div className="pagination">
                                 <span>Page {currentPage} of {totalPages}</span>
                                 <button
@@ -317,6 +359,27 @@ const ExportCsv = () => {
                     )}
                 </div>
             </div>
+
+            {showFieldPopup && (
+                <FieldSelectionPopup
+                    availableFields={allHeaders}
+                    onClose={() => setShowFieldPopup(false)}
+                    onExport={handleExport}
+                />
+            )}
+
+            {csvData.length > 0 && (
+                <CSVLink
+                    data={csvData}
+                    headers={csvHeaders}
+                    filename={"saved_jobs.csv"}
+                    className="primary-button"
+                    ref={csvLinkRef} // Attach ref to CSVLink
+                    style={{ display: 'none' }}
+                >
+                    Export CSV
+                </CSVLink>
+            )}
         </div>
     );
 };

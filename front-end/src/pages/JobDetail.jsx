@@ -344,7 +344,22 @@ const JobDetail = () => {
                                         <h2>{hiddenVisible ? jobs.postedBy : 'Posted By'}</h2>
                                         <ul>
                                             <li><FaBuilding size={25} />{hiddenVisible ? jobs.companyName : 'Corporate Systems Inc'}</li>
-                                            <li><ImLinkedin size={25} /><a href={hiddenVisible ? jobs.linkedin : '#'} target="_blank" rel="noopener noreferrer">{hiddenVisible ? jobs.linkedin : 'Linkeden'}</a></li>
+                                                <li>
+                                                    <ImLinkedin size={25} />
+                                                    <a
+                                                        href={hiddenVisible ? jobs.linkedin : '#'}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            maxWidth: '200px',
+                                                            wordWrap: 'break-word' 
+                                                        }}
+                                                    >
+                                                        {hiddenVisible ? jobs.linkedin : 'LinkedIn'}
+                                                    </a>
+                                                </li>
+
                                             <li><IoMailSharp size={25} />
                                                 <a href={`mailto:${hiddenVisible ? jobs.email : '#'}`}>
                                                     {hiddenVisible ? jobs.email : 'demo@gmail.com'}

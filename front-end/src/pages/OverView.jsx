@@ -184,6 +184,7 @@ const Overview = () => {
                                 <p>Saved Jobs</p>
                                 <button onClick={() => navigate("/saved-jobs")}>View All</button>
                             </div>
+                            
                             <div className="saved-jobs-body">
                                 {savedJobs.length > 0 ? savedJobs.map((job) => (
                                     <Link to={`/jobs-detail/${job._id}`} key={job._id}>
@@ -196,6 +197,7 @@ const Overview = () => {
                                     <img src={saveJobImg} alt="" width={300} />
                                 }
                             </div>
+
                         </div>
 
                     </div>

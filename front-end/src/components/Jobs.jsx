@@ -5,13 +5,17 @@ import { formatDistanceToNow, parseISO, subHours } from 'date-fns';
 import { GoDotFill } from "react-icons/go";
 
 const Jobs = ({ job }) => {
+    // Check if the job is deleted
+    if (job.isDeleted) {
+        return <div>This job no longer exists.</div>;
+    }
+
     // Parse jobDate using parseISO to ensure it's in UTC
     const jobDate = parseISO(job.jobDate);
     // Adjust for the 5-hour difference
     const adjustedJobDate = subHours(jobDate, 5);
-    // Calculate the time difference from now
+    // Calculate the time ago from now
     const timeAgo = formatDistanceToNow(adjustedJobDate, { addSuffix: true, includeSeconds: true });
-
 
     // Function to extract and truncate content, skipping headings
     const extractAndTruncateContent = (htmlString, maxLength) => {

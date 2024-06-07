@@ -449,21 +449,25 @@ const JobPages = () => {
                     </div>
 
                     {isLoading && jobs.length === 0 ? <SkeletonPageLoader /> : renderJobs()}
+                    {!isLoading && jobs.length !== 0 &&
+                        <>
+                            <div className="pagination">
+                                <button onClick={prevPage} disabled={currentPage === 1}>
+                                    <FaAngleLeft />
+                                </button>
+                                {pageButtons}
+                                <button onClick={nextPage} disabled={currentPage === totalPages}>
+                                    <FaAngleRight />
+                                </button>
+                            </div>
 
-                    <div className="pagination">
-                        <button onClick={prevPage} disabled={currentPage === 1}>
-                            <FaAngleLeft />
-                        </button>
-                        {pageButtons}
-                        <button onClick={nextPage} disabled={currentPage === totalPages}>
-                            <FaAngleRight />
-                        </button>
-                    </div>
-                    <div className="pagination-info">
-                        <p>
-                            Page {currentPage} of {totalPages}
-                        </p>
-                    </div>
+                            <div className="pagination-info">
+                                <p>
+                                    Page {currentPage} of {totalPages}
+                                </p>
+                            </div>
+                        </>
+                    }
                 </div>
             </div>
             <Footer />

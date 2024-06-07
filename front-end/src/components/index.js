@@ -7,6 +7,7 @@ export { default as Jobs } from "./Jobs";
 export { default as Footer } from "./Footer";
 export { default as LineChart } from "./LineChart";
 export { default as ScrollToTop } from "./ScrollToTop";
+export { default as FieldSelectionPopup } from "./FieldSelectionPopup";
 
 // for loading
 export { default as SkeletonLoader } from "./SkeletonLoader";
