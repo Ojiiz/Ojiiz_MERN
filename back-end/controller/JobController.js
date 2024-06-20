@@ -202,7 +202,7 @@ const deleteJobById = async (req, res) => {
 const fetchFeatureJobs = async (req, res) => {
     try {
         // Fetch the latest 4 jobs from the database sorted by date in descending order
-        const latestJobs = await Job.find().sort({ jobDate: -1 }).limit(4);
+        const latestJobs = await Job.find().sort({ jobDate: -1 }).limit(5);
 
         res.status(200).json(latestJobs);
     } catch (error) {

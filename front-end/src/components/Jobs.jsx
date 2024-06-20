@@ -5,10 +5,6 @@ import { formatDistanceToNow, parseISO, subHours } from 'date-fns';
 import { GoDotFill } from "react-icons/go";
 
 const Jobs = ({ job }) => {
-    // Check if the job is deleted
-    if (job.isDeleted) {
-        return <div>This job no longer exists.</div>;
-    }
 
     // Parse jobDate using parseISO to ensure it's in UTC
     const jobDate = parseISO(job.jobDate);
@@ -47,11 +43,14 @@ const Jobs = ({ job }) => {
     // Extract and truncate the content, skipping headings
     const truncatedContent = extractAndTruncateContent(job.jobDetail, 150);
 
+    const truncateText = (content, maxLength) => {
+        return content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+    };
     return (
         <div className="job-box">
-            <FaBuilding size={72} color="#B7B7B7" />
+            <FaBuilding size={72} color="#B7B7B7" className='job-building-icon'/>
             <div className="job-description">
-                <h3>{job.jobTitle}</h3>
+                <h3>{job.jobTitle && truncateText(job.jobTitle, 50)}</h3>
                 <span>
                     <CiCalendar /> {timeAgo} <GoDotFill size={14} /> {job.jobCategory}
                 </span>

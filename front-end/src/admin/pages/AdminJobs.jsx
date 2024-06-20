@@ -18,7 +18,12 @@ const AdminJobs = () => {
         const fetchClients = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/all-job`);
+                const response = await fetch(`${API_URL}/api/ojiiz/all-job`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setJobs(data);
                 setFilteredJobs(data); // Initialize filteredJobs with all jobs
@@ -75,6 +80,9 @@ const AdminJobs = () => {
         try {
             const response = await fetch(`${API_URL}/api/ojiiz/delete-job/${jobId}`, {
                 method: 'DELETE',
+                headers: {
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                },
             });
 
             if (!response.ok) {

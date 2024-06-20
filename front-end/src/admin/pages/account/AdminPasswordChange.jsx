@@ -26,7 +26,12 @@ const AdminPasswordChange = () => {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/admin-password-date/${ojiiz_admin.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/admin-password-date/${ojiiz_admin.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setPasswordUpdate(data.passwordUpdate);
             } catch (error) {
@@ -77,6 +82,7 @@ const AdminPasswordChange = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(passwordData),
             });

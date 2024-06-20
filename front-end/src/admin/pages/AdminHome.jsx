@@ -32,7 +32,12 @@ const AdminHome = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const totalJobsResponse = await fetch(`${API_URL}/api/ojiiz/all-job`);
+                const totalJobsResponse = await fetch(`${API_URL}/api/ojiiz/all-job`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (totalJobsResponse.ok) {
                     const jobsData = await totalJobsResponse.json();
                     setTotalJobs(jobsData.length);
@@ -40,7 +45,12 @@ const AdminHome = () => {
                     console.error('Failed to fetch total jobs:', totalJobsResponse.statusText);
                 }
 
-                const clientsResponse = await fetch(`${API_URL}/api/ojiiz/client`);
+                const clientsResponse = await fetch(`${API_URL}/api/ojiiz/client`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (clientsResponse.ok) {
                     const clientsData = await clientsResponse.json();
                     setTotalClients(clientsData.length);
@@ -49,7 +59,12 @@ const AdminHome = () => {
                     console.error('Failed to fetch clients:', clientsResponse.statusText);
                 }
 
-                const usersResponse = await fetch(`${API_URL}/api/ojiiz/admin-user`);
+                const usersResponse = await fetch(`${API_URL}/api/ojiiz/admin-user`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (usersResponse.ok) {
                     const usersData = await usersResponse.json();
                     setTotalUsers(usersData.length);

@@ -13,11 +13,6 @@ const SideBar = () => {
     const [userData, setUserData] = useState();
     const { ojiiz_user } = useAuthContext();
     const location = useLocation();
-    const { logout } = useLogout();
-
-    const handleClickLogout = () => {
-        logout();
-    };
 
     const API_URL = process.env.REACT_APP_BASE_API_URL;
 
@@ -26,7 +21,12 @@ const SideBar = () => {
             try {
 
                 // Fetch user data
-                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (userProfileResponse.ok) {
                     const userData = await userProfileResponse.json();
                     setUserData(userData.user);
@@ -43,7 +43,7 @@ const SideBar = () => {
     }, [API_URL, ojiiz_user.userName]);
 
     return (
-        <div className="">
+        <div>
             <div className="side-bar">
                 <ul>
                     <Link to="/overview">
@@ -71,7 +71,7 @@ const SideBar = () => {
                 <div className="update">
                     <img src={rocket} alt="" />
                     <div className="update-content">
-                        <p>Left Credit: {userData ? `${userData.totalCredit - userData.usedCredit}` : '0/0'} oz</p>
+                        <p>Credit left: {userData ? `${userData.totalCredit - userData.usedCredit}` : '0'} oz</p>
                         <Link to={"/choose-plan"}>
                             <button>Update Now</button>
                         </Link>
@@ -98,7 +98,7 @@ const SideBar = () => {
                         <li className={location.pathname === '/export-csv' ? 'active' : ''}><FaFileExport size={24} /></li>
                     </Link>
 
-                    
+
                     <Link to="/saved-jobs">
                         <li className={location.pathname === '/saved-jobs' ? 'active' : ''}><IoBookmark size={24} /></li>
                     </Link>

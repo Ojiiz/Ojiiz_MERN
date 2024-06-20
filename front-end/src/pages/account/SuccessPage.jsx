@@ -11,7 +11,12 @@ const SuccessPage = () => {
     useEffect(() => {
         const fetchSessionData = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/ojiiz/retrieve-session?session_id=${session_id}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/retrieve-session?session_id=${session_id}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (response.ok) {
                     toast.success('Your oz add successfully');
                 }

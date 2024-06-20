@@ -88,7 +88,8 @@ const SignUp = () => {
       const response = await fetch(`${API_URL}/api/ojiiz/check-unique`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
         },
         body: JSON.stringify({
           userName: formData.userName,
@@ -146,7 +147,8 @@ const SignUp = () => {
       const response = await fetch(`${API_URL}/api/ojiiz/check-username`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
         },
         body: JSON.stringify({ username })
       });
@@ -193,7 +195,7 @@ const SignUp = () => {
           <h3>Love the simplicity of the service and the prompt customer support. We can’t imagine working without it.</h3>
           <img src={img} alt="" />
           <p>John Doe</p>
-          <h4>CEO & Founder at Ojeez</h4>
+          <h4>CEO & Founder at Ojiiz</h4>
         </div>
       </div>
 
@@ -273,7 +275,7 @@ const SignUp = () => {
             )}
           </div>
 
-          <input type="number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder='Phone Number (Optional)' />
+          <input type="number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder='Phone Number (Optional)' min="0" />
           <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder='Company Name' className={errors.companyName ? 'error' : ''} />
           <label htmlFor="term">
             <input type="checkbox" name="term" id="term" required />

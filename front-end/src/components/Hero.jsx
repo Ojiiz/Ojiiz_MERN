@@ -17,17 +17,26 @@ const Hero = ({ heading, home, searchValue }) => {
         setIsLoading(true);
         try {
             // Make an API request to fetch jobs based on the search query
-            const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/search-job?query=${searchQuery}`);
+            const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/search-job?query=${searchQuery}`,
+                {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
             if (response.ok) {
                 const data = await response.json();
 
-                navigate('/jobs', { state: { jobs: data, searchQuery: searchQuery } })
+                // Sort jobs by latest date
+                const sortedData = data.sort((a, b) => new Date(b.jobDate) - new Date(a.jobDate));
+
+                navigate('/jobs', { state: { jobs: sortedData, searchQuery: searchQuery } })
             } else {
                 toast.error('Something went wrong');
                 console.error('Failed to fetch search results:', response.statusText);
             }
         } catch (error) {
             console.error('Error fetching search results:', error);
+            toast.error('An error occurred while fetching search results. Please try again later.');
         } finally {
             setIsLoading(false);
         }

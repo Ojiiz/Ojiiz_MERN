@@ -26,7 +26,12 @@ const PasswordChange = () => {
         const fetchUserData = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/password-date/${ojiiz_user.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/password-date/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setPasswordUpdate(data.passwordUpdate);
             } catch (error) {
@@ -77,6 +82,7 @@ const PasswordChange = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(passwordData),
             });
@@ -86,10 +92,11 @@ const PasswordChange = () => {
 
             if (response.ok) {
                 toast.success('Password changed successfully.');
-
                 setTimeout(() => {
-                    logout()
+                    logout();
                 }, 2000);
+            } else if (response.status === 400) {
+                toast.error('Invalid current password.');
             } else {
                 toast.error(data.error || 'Failed to change password.');
             }
@@ -99,6 +106,7 @@ const PasswordChange = () => {
             setLoading(false);
         }
     };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;

@@ -20,7 +20,12 @@ const Client = () => {
         const fetchClients = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/client`);
+                const response = await fetch(`${API_URL}/api/ojiiz/client`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setClients(data);
             } catch (error) {
@@ -51,6 +56,7 @@ const Client = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify({ isActive }),
             });
@@ -78,6 +84,7 @@ const Client = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(formData),
             });
@@ -102,6 +109,7 @@ const Client = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(formData),
             });

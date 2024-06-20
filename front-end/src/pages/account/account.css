@@ -904,7 +904,7 @@
 }
 
 .deactivate-body {
-    width: 650px;
+    max-width: 650px;
     min-height: 450px;
     border-radius: 30px;
     background-color: white;

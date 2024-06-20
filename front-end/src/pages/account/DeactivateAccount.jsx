@@ -23,7 +23,8 @@ const DeactivateAccount = () => {
             const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/delete-account/${ojiiz_user.userName}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${ojiiz_user.token}`
+                    'Authorization': `Bearer ${ojiiz_user.token}`,
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 }
             });
 

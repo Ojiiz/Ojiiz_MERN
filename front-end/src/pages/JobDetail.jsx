@@ -34,11 +34,17 @@ const JobDetail = () => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                setHiddenVisible(false)
-                setCreditLoading(false)
-                setPhoneCredit(false)
+                setHiddenVisible(false);
+                setCreditLoading(false);
+                setPhoneCredit(false);
+                setSavedJob(false)
                 // Fetch job detail
-                const responseJobs = await fetch(`${API_URL}/api/ojiiz/job/${id}`);
+                const responseJobs = await fetch(`${API_URL}/api/ojiiz/job/${id}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (responseJobs.ok) {
                     const jobData = await responseJobs.json();
                     setJobs(jobData);
@@ -47,10 +53,15 @@ const JobDetail = () => {
                 }
 
                 // Fetch user data
-                const responseUserData = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const responseUserData = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (responseUserData.ok) {
                     const userData = await responseUserData.json();
-                    setUserData(userData.user)
+                    setUserData(userData.user);
                     if (userData.user.savedJobs.find(savedJob => savedJob.job_id === id && savedJob.mainCredit)) {
                         setHiddenVisible(true);
                     }
@@ -66,10 +77,17 @@ const JobDetail = () => {
                 }
 
                 // Fetch latest jobs
-                const responseLatestJobs = await fetch(`${API_URL}/api/ojiiz/feature-job`);
+                const responseLatestJobs = await fetch(`${API_URL}/api/ojiiz/feature-job`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (responseLatestJobs.ok) {
                     const latestJobsData = await responseLatestJobs.json();
-                    setLatestJobs(latestJobsData);
+                    // Filter out the job with the given id and limit to 4 jobs
+                    const filteredJobs = latestJobsData.filter(job => job._id !== id).slice(0, 4);
+                    setLatestJobs(filteredJobs);
                 } else {
                     console.error('Failed to fetch latest jobs:', responseLatestJobs.statusText);
                 }
@@ -84,12 +102,14 @@ const JobDetail = () => {
         fetchData();
     }, [id, ojiiz_user.userName, API_URL]);
 
+
     const saveJob = async () => {
         try {
             const response = await fetch(`${API_URL}/api/ojiiz/save-job`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify({ userName: ojiiz_user.userName, jobId: id }),
             });
@@ -133,8 +153,14 @@ const JobDetail = () => {
         try {
             setCreditLoading(true)
             const response = await fetch(`https://api.zerobounce.net/v2/validate?api_key=${ZEROBOUNCE_API_KEY}&email=${email}`);
+
             if (response.ok) {
                 const data = await response.json();
+
+                if (data.error === 'Invalid API key or your account ran out of credits') {
+                    toast.error('Mail validation is expire.');
+                    return 'expire';
+                }
                 return ['valid', 'do_not_mail', 'catch_all'].includes(data.status);
             } else {
                 console.error('Failed to verify email:', response.statusText);
@@ -157,39 +183,49 @@ const JobDetail = () => {
                 return
             }
 
-            const isEmailVerified = await verifyEmail(jobs.email);
-            if (!isEmailVerified) {
-                toast.error('Company Email did not valid, your credit will refund');
-                setTimeout(async () => {
-                    try {
-                        setCreditLoading(true);
-                        const response = await fetch(`${API_URL}/api/ojiiz/delete-job/${id}`, {
-                            method: 'DELETE',
-                        });
+            if (type === 'main') {
+                const isEmailVerified = await verifyEmail(jobs.email);
 
-                        if (response.ok) {
-                            toast.success('Job deleted successfully!');
-                            navigate('/jobs');
-                        } else {
-                            const data = await response.json();
-                            toast.error(data.message);
-                            console.error('Failed to delete job:', data.message);
+                if (!isEmailVerified) {
+                    toast.error('Company Email did not valid, your credit will refund');
+                    setTimeout(async () => {
+                        try {
+                            setCreditLoading(true);
+                            const response = await fetch(`${API_URL}/api/ojiiz/delete-job/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                                },
+                            });
+
+                            if (response.ok) {
+                                toast.success('Job deleted successfully!');
+                                navigate('/jobs');
+                            } else {
+                                const data = await response.json();
+                                toast.error(data.message);
+                                console.error('Failed to delete job:', data.message);
+                            }
+                        } catch (error) {
+                            toast.error('Error deleting job:', error);
+                            console.error('Error deleting job:', error);
+                        } finally {
+                            setCreditLoading(false);
                         }
-                    } catch (error) {
-                        toast.error('Error deleting job:', error);
-                        console.error('Error deleting job:', error);
-                    } finally {
-                        setCreditLoading(false);
-                    }
-                }, 2000);
-                return;
+                    }, 2000);
+                    return;
+                } else if (isEmailVerified === 'expire') {
+                    return
+                }
             }
 
             setCreditLoading(true);
+
             const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/deduct-credits`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify({ userName: ojiiz_user.userName, credit: credit, job_id: id, type: type }),
             });
@@ -344,21 +380,21 @@ const JobDetail = () => {
                                         <h2>{hiddenVisible ? jobs.postedBy : 'Posted By'}</h2>
                                         <ul>
                                             <li><FaBuilding size={25} />{hiddenVisible ? jobs.companyName : 'Corporate Systems Inc'}</li>
-                                                <li>
-                                                    <ImLinkedin size={25} />
-                                                    <a
-                                                        href={hiddenVisible ? jobs.linkedin : '#'}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        style={{
-                                                            display: 'inline-block',
-                                                            maxWidth: '200px',
-                                                            wordWrap: 'break-word' 
-                                                        }}
-                                                    >
-                                                        {hiddenVisible ? jobs.linkedin : 'LinkedIn'}
-                                                    </a>
-                                                </li>
+                                            <li>
+                                                <ImLinkedin size={25} />
+                                                <a
+                                                    href={hiddenVisible ? jobs.linkedin : '#'}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        maxWidth: '200px',
+                                                        wordWrap: 'break-word'
+                                                    }}
+                                                >
+                                                    {hiddenVisible ? jobs.linkedin : 'LinkedIn'}
+                                                </a>
+                                            </li>
 
                                             <li><IoMailSharp size={25} />
                                                 <a href={`mailto:${hiddenVisible ? jobs.email : '#'}`}>
@@ -398,7 +434,7 @@ const JobDetail = () => {
                 <div className="more-job-row">
                     {latestJobs.map(job => (
                         <div className="more-job" key={job._id}>
-                            <h3>{job.jobTitle}</h3>
+                            <h3>{truncateText(job.jobTitle, 50)}</h3>
                             <p>{extractAndTruncateContent(job.jobDetail, 100)}</p>
                             {userData && userData.totalCredit - userData.usedCredit <= 0 ? (
                                 <div onClick={() => handleJobClick()}>
@@ -417,6 +453,10 @@ const JobDetail = () => {
             <Footer />
         </div>
     );
+};
+
+const truncateText = (content, maxLength) => {
+    return content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
 };
 
 // Function to extract and truncate content, skipping headings

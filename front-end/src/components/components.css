@@ -378,13 +378,17 @@
         font-size: 12px;
     }
 
+    .hero-search form {
+        width: 90%;
+    }
+
     .hero-search form input {
-        max-width: 230px;
+        max-width: 70%;
         font-size: 12px;
     }
 
     .hero-search form button {
-        max-width: 130px;
+        max-width: 30%;
         font-size: 12px;
     }
 
@@ -404,5 +408,14 @@
 
     .job-box p {
         font-size: 12px;
+    }
+
+    .job-box span {
+        font-size: 10px;
+    }
+
+    .job-box .job-building-icon,
+    .skeleton-icon {
+        display: none;
     }
 }

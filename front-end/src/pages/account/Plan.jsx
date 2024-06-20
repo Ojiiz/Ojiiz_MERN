@@ -56,7 +56,8 @@ const Plan = () => {
             const createUserResponse = await fetch(`${API_URL}/api/ojiiz/user-signup`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -90,7 +91,8 @@ const Plan = () => {
             const response = await fetch(`${API_URL}/api/ojiiz/create-checkout-session`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(formData)
             });

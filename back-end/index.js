@@ -4,8 +4,9 @@ require('dotenv').config();
 require('./connect'); // Assuming this is your database connection
 const UserRoutes = require('./routes/UserRoutes');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 5000;
 
+const apiKey = process.env.API_KEY
 // Middleware for CORS
 app.use(
   cors({
@@ -27,8 +28,19 @@ app.get('/', async (req, res) => {
 });
 
 
-// API routes
-app.use('/api/ojiiz', UserRoutes);
+// Middleware to check API key
+const checkApiKey = (req, res, next) => {
+  const apiKeyHeader = req.headers['x-api-key'];
+  if (apiKeyHeader && apiKeyHeader === apiKey) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+};
+
+// Apply checkApiKey middleware to all routes under '/api/ojiiz'
+app.use('/api/ojiiz', checkApiKey, UserRoutes);
+
 
 // Start the server
 app.listen(port, () => {

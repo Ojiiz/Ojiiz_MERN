@@ -16,7 +16,10 @@ export const useAdminLogin = () => {
         setError(null)
         const response = await fetch(`${API_URL}/api/ojiiz/admin-login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+            },
             body: JSON.stringify({ email, password })
         })
         const json = await response.json()

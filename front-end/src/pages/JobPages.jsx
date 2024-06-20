@@ -13,7 +13,9 @@ const JobPages = () => {
     const location = useLocation();
 
     const jobSearch = useMemo(() => location.state?.jobs || [], [location.state?.jobs]);
+
     const category = useMemo(() => location.state?.category || '', [location.state?.category]);
+    
     const searchQuery = useMemo(() => location.state?.searchQuery || '', [location.state?.searchQuery]);
 
     const [jobs, setJobs] = useState([]);
@@ -99,12 +101,14 @@ const JobPages = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(updatedFilters),
             });
             if (response.ok) {
                 const data = await response.json();
-                setJobs(data);
+                const sortedData = data.sort((a, b) => new Date(b.jobDate) - new Date(a.jobDate));
+                setJobs(sortedData);
                 setCurrentPage(1);
                 await fetchUserData();
                 // Apply sorting after applying filters
@@ -125,7 +129,12 @@ const JobPages = () => {
     const fetchUserData = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+            const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
             if (response.ok) {
                 const data = await response.json();
                 const rem = data.user.totalCredit - data.user.usedCredit;
@@ -150,7 +159,12 @@ const JobPages = () => {
                 searchQuery,
             }).toString();
             const apiUrl = `${process.env.REACT_APP_BASE_API_URL}/api/ojiiz/latest-job?${filtersQuery}`;
-            const response = await fetch(apiUrl);
+            const response = await fetch(apiUrl,
+                {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
             if (response.ok) {
                 const data = await response.json();
                 setJobs(data);
@@ -213,7 +227,7 @@ const JobPages = () => {
         const endIndex = Math.min(startIndex + 10, jobs.length);
 
         if (jobs.length === 0 && !isLoading) {
-            return <img src={noJob} alt="" width={400} />;
+            return <img src={noJob} alt="" width={400} className='no-item'/>;
         }
 
         return jobs.slice(startIndex, endIndex).map((job) => (
@@ -239,6 +253,7 @@ const JobPages = () => {
     };
 
     const pageButtons = [];
+
     for (let i = Math.max(1, currentPage - 2); i <= Math.min(currentPage + 2, totalPages); i++) {
         pageButtons.push(
             <button key={i} onClick={() => goToPage(i)} className={currentPage === i ? 'active' : ''}>

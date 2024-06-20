@@ -29,7 +29,12 @@ const Overview = () => {
                 setIsLoading(true);
 
                 // Fetch user data to get saved jobs
-                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (!userProfileResponse.ok) {
                     throw new Error(`Failed to fetch user profile: ${userProfileResponse.statusText}`);
                 }
@@ -40,7 +45,12 @@ const Overview = () => {
 
                 // Fetch job details for each saved job
                 const jobsPromises = savedJobsIds.map(jobId =>
-                    fetch(`${API_URL}/api/ojiiz/job/${jobId}`).then(response => response.json())
+                    fetch(`${API_URL}/api/ojiiz/job/${jobId}`,
+                        {
+                            headers: {
+                                'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                            },
+                        }).then(response => response.json())
                 );
 
                 // Resolve all promises
@@ -74,6 +84,10 @@ const Overview = () => {
     };
 
     const options = {};
+
+    const truncateText = (content, maxLength) => {
+        return content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+    };
 
 
     return (
@@ -126,7 +140,7 @@ const Overview = () => {
 
                         <div className="country-stats">
                             <div className="country-stats-header">
-                                Live Users
+                                Live Fields
                                 <button>By Country</button>
                             </div>
                             <div className="country-stats-body">
@@ -184,17 +198,17 @@ const Overview = () => {
                                 <p>Saved Jobs</p>
                                 <button onClick={() => navigate("/saved-jobs")}>View All</button>
                             </div>
-                            
+
                             <div className="saved-jobs-body">
                                 {savedJobs.length > 0 ? savedJobs.map((job) => (
                                     <Link to={`/jobs-detail/${job._id}`} key={job._id}>
                                         <div className="save-job-post">
                                             <div className="building-icon"><FaBuilding /></div>
-                                            <p>{job.jobTitle}</p>
+                                            <p>{job.jobTitle && truncateText(job.jobTitle, 50)}</p>
                                         </div>
                                     </Link>
                                 )) :
-                                    <img src={saveJobImg} alt="" width={300} />
+                                    <img src={saveJobImg} alt="" width={300} className='no-item' />
                                 }
                             </div>
 

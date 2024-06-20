@@ -19,18 +19,29 @@ const SavedJobs = () => {
         const fetchSavedJobs = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const userData = await response.json();
                 const savedJobsIds = userData.user.savedJobs.map(savedJob => savedJob.job_id);
 
                 const jobsPromises = savedJobsIds.map(async jobId => {
-                    const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`);
+                    const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`,
+                        {
+                            headers: {
+                                'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                            },
+                        });
                     const jobData = await jobResponse.json();
 
                     // If the job exists, return it along with the savedJob details
-                    if (jobData.error) {
-
-                        toast.warn(`job is no longer exist.`);
+                    if (!jobData.error) {
+                        return jobData;
+                    } else {
+                        toast.warn(`Job is no longer exist.`);
                         // If the job does not exist, delete it from the server and remove it from userData.user.savedJobs
                         await deleteJobFromServer(jobId);
                         const jobIndex = userData.user.savedJobs.findIndex(job => job.job_id === jobId);
@@ -38,9 +49,8 @@ const SavedJobs = () => {
                             userData.user.savedJobs.splice(jobIndex, 1); // Remove the job from savedJobs
                         }
                         return null; // Return null to indicate deletion
-                    };
-                }
-                );
+                    }
+                });
 
                 const jobsData = await Promise.all(jobsPromises);
 
@@ -67,7 +77,7 @@ const SavedJobs = () => {
                 const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}/saved-jobs/${jobId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                     },
                 });
 
@@ -136,7 +146,7 @@ const SavedJobs = () => {
                                 </Link>
                             </React.Fragment>
                         )) :
-                            <img src={saveJobImg} alt="" width={400} />
+                            <img src={saveJobImg} alt="" width={400} className='no-item' />
                         }
                     </div>
 

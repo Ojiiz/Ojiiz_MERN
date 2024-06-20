@@ -34,7 +34,12 @@ const Profile = () => {
         const fetchUserData = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setUserData(data.user);
             } catch (error) {
@@ -65,7 +70,8 @@ const Profile = () => {
             const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${userData._id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(userData)
             });
@@ -116,51 +122,53 @@ const Profile = () => {
                             {error.message}
                         </div>
                     }
-                    <form onSubmit={handleProfileUpdate}>
-                        <div className="row">
-                            <div className="col">
-                                <h3>Personal</h3>
-                                <div className="row">
-                                    <label htmlFor="firstName">
-                                        First Name
-                                        <input type="text" name="firstName" value={userData.firstName} onChange={handleChange} />
+                    {userData &&
+                        <form onSubmit={handleProfileUpdate}>
+                            <div className="row">
+                                <div className="col">
+                                    <h3>Personal</h3>
+                                    <div className="row">
+                                        <label htmlFor="firstName">
+                                            First Name
+                                            <input type="text" name="firstName" value={userData.firstName} onChange={handleChange} />
+                                        </label>
+                                        <label htmlFor="lastName">
+                                            Last Name
+                                            <input type="text" name="lastName" value={userData.lastName} onChange={handleChange} />
+                                        </label>
+                                    </div>
+                                    <label htmlFor="userName">
+                                        User Name
+                                        <input type="text" name="userName" value={userData.userName} onChange={handleChange} disabled />
                                     </label>
-                                    <label htmlFor="lastName">
-                                        Last Name
-                                        <input type="text" name="lastName" value={userData.lastName} onChange={handleChange} />
+                                    <label htmlFor="companyName">
+                                        Company Name
+                                        <input type="text" name="companyName" value={userData.companyName} onChange={handleChange} style={{ width: '100%' }} disabled />
                                     </label>
                                 </div>
-                                <label htmlFor="userName">
-                                    User Name
-                                    <input type="text" name="userName" value={userData.userName} onChange={handleChange} disabled />
-                                </label>
-                                <label htmlFor="companyName">
-                                    Company Name
-                                    <input type="text" name="companyName" value={userData.companyName} onChange={handleChange} style={{ width: '100%' }} disabled />
-                                </label>
-                            </div>
 
-                            <div className="col">
-                                <h3>Contact</h3>
-                                <label htmlFor="email">
-                                    Email
-                                    <input type="text" name="email" value={userData.email} onChange={handleChange} style={{ width: '100%' }} disabled />
-                                </label>
-                                <label htmlFor="phoneNumber">
-                                    Phone Number
-                                    <input type="text" name="phoneNumber" value={userData.phoneNumber} onChange={handleChange} style={{ width: '100%' }} />
-                                </label>
+                                <div className="col">
+                                    <h3>Contact</h3>
+                                    <label htmlFor="email">
+                                        Email
+                                        <input type="text" name="email" value={userData.email} onChange={handleChange} style={{ width: '100%' }} disabled />
+                                    </label>
+                                    <label htmlFor="phoneNumber">
+                                        Phone Number
+                                        <input type="text" name="phoneNumber" value={userData.phoneNumber} onChange={handleChange} style={{ width: '100%' }} />
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <button
-                            type="submit"
-                            className='profile-btn'
-                            disabled={isLoading || !isFormDirty}
-                        >
-                            {isLoading ? 'Saving...' : 'Save Changes'}
-                        </button>
+                            <button
+                                type="submit"
+                                className='profile-btn'
+                                disabled={isLoading || !isFormDirty}
+                            >
+                                {isLoading ? 'Saving...' : 'Save Changes'}
+                            </button>
 
-                    </form>
+                        </form>
+                    }
                     <h2>Account Setting</h2>
                     <div className="row">
                         <button className="primary-button" onClick={(handleClickLogout)}>Logout</button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavBar, SideBar, FieldSelectionPopup } from '../components';
+import { NavBar, SideBar, FieldSelectionPopup, Footer } from '../components';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -28,12 +28,22 @@ const ExportCsv = () => {
         const fetchSavedJobs = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const userData = await response.json();
                 const savedJobsIds = userData.user.savedJobs.map(savedJob => savedJob.job_id);
 
                 const jobsPromises = savedJobsIds.map(async jobId => {
-                    const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`);
+                    const jobResponse = await fetch(`${API_URL}/api/ojiiz/job/${jobId}`,
+                        {
+                            headers: {
+                                'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                            },
+                        });
                     const jobData = await jobResponse.json();
 
                     // If the job exists, return it along with the savedJob details
@@ -82,6 +92,7 @@ const ExportCsv = () => {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                     },
                 });
 
@@ -158,6 +169,7 @@ const ExportCsv = () => {
     const allHeaders = [
         { label: "Sr#", key: "srNo" },
         { label: "Job Title", key: "jobTitle" },
+        { label: "Job Category", key: "jobCategory" },
         { label: "Company Name", key: "companyName" },
         { label: "Posted By", key: "postedBy" },
         { label: "Email", key: "email" },
@@ -183,7 +195,8 @@ const ExportCsv = () => {
                 jobTitle: job.jobTitle,
             };
 
-            if (selectedFields.includes("companyName")) jobData.companyName = job.companyName;
+            if (selectedFields.includes("jobCategory")) jobData.jobCategory = job.jobCategory;
+            if (selectedFields.includes("companyName")) jobData.companyName = job.mainCredit ? job.companyName : 'Buy oz to access these Info';
             if (selectedFields.includes("postedBy")) jobData.postedBy = job.mainCredit ? job.postedBy : 'Buy oz to access these Info';
             if (selectedFields.includes("email")) jobData.email = job.mainCredit ? job.email : 'Buy oz to access these Info';
             if (selectedFields.includes("linkedin")) jobData.linkedin = job.mainCredit ? job.linkedin : 'Buy oz to access these Info';
@@ -221,6 +234,7 @@ const ExportCsv = () => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
             });
 
@@ -232,8 +246,11 @@ const ExportCsv = () => {
             toast.success('Job deleted successfully');
         } catch (error) {
             console.error('Error deleting job:', error);
-            toast.error('Error deleting job:', error.message);
         }
+    };
+
+    const truncateText = (content, maxLength) => {
+        return content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
     };
 
     return (
@@ -244,6 +261,7 @@ const ExportCsv = () => {
             </div>
             <ToastContainer />
             {isLoading && <div className="loader"></div>}
+
             <div className="saved-content">
                 <SideBar />
                 <div className="export-csv-job">
@@ -300,7 +318,7 @@ const ExportCsv = () => {
                                             ) : (
                                                 <tr key={job._id}>
                                                     <td>{indexOfFirstJob + index + 1}</td>
-                                                    <td>{job.jobTitle}</td>
+                                                    <td>{truncateText(job.jobTitle, 30)}</td>
                                                     <td>{job.jobCategory}</td>
                                                     <td>{job.mainCredit ? job.companyName : 'Not Available'}</td>
                                                     <td>{job.phoneCredit ? job.companyPhone : 'Not Available'}</td>
@@ -355,11 +373,13 @@ const ExportCsv = () => {
                             </div>
                         </div>
                     ) : (
-                        <img src={saveJobImg} alt="" width={400} />
+                        <img src={saveJobImg} alt="" width={400} className='no-item'/>
                     )}
                 </div>
+
             </div>
 
+            <Footer />
             {showFieldPopup && (
                 <FieldSelectionPopup
                     availableFields={allHeaders}

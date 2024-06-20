@@ -22,12 +22,19 @@ const Home = () => {
     const navigate = useNavigate();
     const API_URL = process.env.REACT_APP_BASE_API_URL;
 
+    const apiKey = process.env.REACT_APP_AUTH_API_KEY;
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
                 // Fetch latest jobs
-                const latestJobsResponse = await fetch(`${API_URL}/api/ojiiz/latest-job`);
+                const latestJobsResponse = await fetch(`${API_URL}/api/ojiiz/latest-job`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (latestJobsResponse.ok) {
                     const latestJobsData = await latestJobsResponse.json();
                     setLatestJobs(latestJobsData);
@@ -36,7 +43,12 @@ const Home = () => {
                 }
 
                 // Fetch user data
-                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const userProfileResponse = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 if (userProfileResponse.ok) {
                     const userData = await userProfileResponse.json();
                     setUserData(userData.user);
@@ -115,6 +127,7 @@ const Home = () => {
                         </div>
                         <div className="stats">
                             <p>Today jobs</p>
+                            <br />
                             <span>{latestJobs.length}</span>
                         </div>
                     </div>

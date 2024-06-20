@@ -19,7 +19,12 @@ const User = () => {
         const fetchUsers = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/admin-user`);
+                const response = await fetch(`${API_URL}/api/ojiiz/admin-user`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setUsers(data);
             } catch (error) {
@@ -56,6 +61,9 @@ const User = () => {
         try {
             const response = await fetch(`${API_URL}/api/ojiiz/delete-admin/${userId}`, {
                 method: 'DELETE',
+                headers: {
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                },
             });
 
             if (!response.ok) {
@@ -86,6 +94,7 @@ const User = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(newUser),
             });

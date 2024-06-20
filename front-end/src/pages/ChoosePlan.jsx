@@ -9,8 +9,8 @@ const ChoosePlan = () => {
     const { ojiiz_user } = useAuthContext();
     const [loading, setLoading] = useState(false);
     const [userData, setUserData] = useState();
-    const [selectedPlan, setSelectedPlan] = useState(100); // State to track the selected plan
-    const [amountPerOz, setAmountPerOz] = useState(0.6); // Default amount per Oz
+    const [selectedPlan, setSelectedPlan] = useState(100);
+    const [amountPerOz, setAmountPerOz] = useState(0.6); 
 
     const API_URL = process.env.REACT_APP_BASE_API_URL;
 
@@ -18,7 +18,12 @@ const ChoosePlan = () => {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`);
+                const response = await fetch(`${API_URL}/api/ojiiz/user-profile/${ojiiz_user.userName}`,
+                    {
+                        headers: {
+                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                        },
+                    });
                 const data = await response.json();
                 setUserData(data.user);
             } catch (error) {
@@ -58,10 +63,12 @@ const ChoosePlan = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         if (selectedPlan < 100) {
             toast.error('You can buy a minimum of 100 oz credits.');
             return;
         }
+
         try {
             setLoading(true);
             const updatedUserData = { ...userData, selectedPlan };
@@ -70,7 +77,8 @@ const ChoosePlan = () => {
             const response = await fetch(`${API_URL}/api/ojiiz/choose-session`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
                 },
                 body: JSON.stringify(updatedUserData)
             });
@@ -167,7 +175,7 @@ const ChoosePlan = () => {
                         </span>
                         <br />
                         <b>Your account will be charged</b>
-                        <span>{selectedPlan * amountPerOz}$</span>
+                        <span>{(selectedPlan * amountPerOz).toFixed(2)}$</span>
                         <b>Your new Connects balance</b>
                         <span>{userData && userData.totalCredit - userData.usedCredit + selectedPlan}</span>
                         <button onClick={handleSubmit}>Buy</button>

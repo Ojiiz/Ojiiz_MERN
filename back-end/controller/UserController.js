@@ -2,7 +2,6 @@ const User = require("../model/UserSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const endpointSecret = "whsec_86558f8a3579e55f83fa8cd59adeccf32e2daa660c98a3db5493fbaf36dc4a75";
 
 const createToken = (_id) => {
     return jwt.sign({ _id }, "sjvbsjdhbjavabvhaddabdfjaj", { expiresIn: "2d" });
@@ -365,6 +364,9 @@ const checkOutSession = async (req, res) => {
         // Convert planPrice to cents
         const planPriceInCents = formData.planPrice * 100;
 
+        // Capitalize planType
+        const capitalizedPlanType = formData.planType.toUpperCase();
+
         // Create checkout session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -373,7 +375,7 @@ const checkOutSession = async (req, res) => {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: formData.planType,
+                            name: capitalizedPlanType, // Use capitalized plan type
                         },
                         unit_amount: planPriceInCents, // Corrected price format
                     },
@@ -386,7 +388,7 @@ const checkOutSession = async (req, res) => {
             client_reference_id: formData.userName,
             metadata: {
                 selectedPlan: formData.planCredit,
-                planType: formData.planType,
+                planType: capitalizedPlanType, // Use capitalized plan type
             },
         });
 
@@ -397,6 +399,7 @@ const checkOutSession = async (req, res) => {
         res.status(500).json({ error: 'Failed to create checkout session' });
     }
 };
+
 
 const processedSessions = new Set(); // Store processed session IDs
 
@@ -413,11 +416,11 @@ const chooseSession = async (req, res) => {
 
         // Calculate price based on selected plan
         if (userData.selectedPlan < 500) {
-            planPriceInCents = userData.selectedPlan * 0.6 * 100;
-        } else if (userData.selectedPlan >= 500 && userData.selectedPlan <= 1000) {
-            planPriceInCents = userData.selectedPlan * 0.5 * 100;
-        } else if (userData.selectedPlan > 1000) {
-            planPriceInCents = userData.selectedPlan * 0.45 * 100;
+            planPriceInCents = Number((userData.selectedPlan * 0.6 * 100).toFixed(2));
+        } else if (userData.selectedPlan >= 500 && userData.selectedPlan < 1000) {
+            planPriceInCents = Number((userData.selectedPlan * 0.5 * 100).toFixed(2));
+        } else if (userData.selectedPlan >= 1000) {
+            planPriceInCents = Number((userData.selectedPlan * 0.45 * 100).toFixed(2));
         } else {
             return res.status(400).json({ error: 'Invalid selected plan' });
         }
@@ -429,7 +432,7 @@ const chooseSession = async (req, res) => {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: `oz Credits - ${userData.selectedPlan}`,
+                            name: `Oz Credits: ${userData.selectedPlan} oz`,
                         },
                         unit_amount: planPriceInCents,
                     },
@@ -451,6 +454,7 @@ const chooseSession = async (req, res) => {
         res.status(500).json({ error: 'Failed to create checkout session' });
     }
 };
+
 
 
 const retrieveSession = async (req, res) => {
