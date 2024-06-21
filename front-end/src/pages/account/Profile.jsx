@@ -143,7 +143,7 @@ const Profile = () => {
                                     </label>
                                     <label htmlFor="companyName">
                                         Company Name
-                                        <input type="text" name="companyName" value={userData.companyName} onChange={handleChange} style={{ width: '100%' }} disabled />
+                                        <input type="text" name="companyName" value={userData.companyName} onChange={handleChange} style={{ width: '100%' }} />
                                     </label>
                                 </div>
 

@@ -6,10 +6,10 @@ import './SkeletonLoader.css';
 const SkeletonLoader = () => {
     return (
         <div className="job-detail skeleton">
-            <h2 className="skeleton-title"></h2>
+            <div className="skeleton-title"></div>
             <div className="job-detail-row">
                 <div className="job-overview">
-                    <h3 className="skeleton-title"></h3>
+                    <div className="skeleton-title"></div>
                     <div className="overview-row">
                         <div className="job-overview-detail">
                             <div className="skeleton-icon"></div>
@@ -34,13 +34,13 @@ const SkeletonLoader = () => {
             </div>
             <div className="job-desc">
                 <div className="job-desc-text">
-                    <h2 className="skeleton-title"></h2>
+                    <div className="skeleton-title"></div>
                     <div className="skeleton-text"></div>
                 </div>
                 <div className="hidden">
                     <div className="job-hidden">
                         <p className="skeleton-text"></p>
-                        <h2 className="skeleton-title"></h2>
+                        <div className="skeleton-title"></div>
                         <ul>
                             <li className="skeleton-text"></li>
                             <li className="skeleton-text"></li>
@@ -51,7 +51,7 @@ const SkeletonLoader = () => {
                 </div>
             </div>
             <div className="more-job-section">
-                <h2 className="skeleton-title"></h2>
+                <div className="skeleton-title"></div>
                 <p className="skeleton-text"></p>
                 <div className="more-job-row">
                     <div className="more-job">

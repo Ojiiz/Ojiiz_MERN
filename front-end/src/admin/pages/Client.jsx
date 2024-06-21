@@ -194,7 +194,7 @@ const Client = () => {
                                         <td>{indexOfFirstClient + index + 1}</td>
                                         <td>{client.userName}</td>
                                         <td>{client.email}</td>
-                                        <td>{client.companyName}</td>
+                                        <td>{client.companyName ? client.companyName : 'Not Available'}</td>
                                         <td>{client.planType}</td>
                                         <td>{client.totalCredit}</td>
                                         <td>{client.usedCredit}</td>

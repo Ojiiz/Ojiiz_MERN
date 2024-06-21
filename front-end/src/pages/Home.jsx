@@ -22,7 +22,6 @@ const Home = () => {
     const navigate = useNavigate();
     const API_URL = process.env.REACT_APP_BASE_API_URL;
 
-    const apiKey = process.env.REACT_APP_AUTH_API_KEY;
 
     useEffect(() => {
         const fetchData = async () => {

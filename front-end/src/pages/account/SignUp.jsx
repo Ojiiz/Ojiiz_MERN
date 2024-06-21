@@ -35,7 +35,7 @@ const SignUp = () => {
     setErrors({});
 
     // Check if any required field is empty
-    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'password', 'confirmPassword', 'companyName'];
+    const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'password', 'confirmPassword'];
     const emptyFields = requiredFields.filter(field => !formData[field]);
 
     if (emptyFields.length > 0) {
@@ -269,14 +269,14 @@ const SignUp = () => {
               className={errors.confirmPassword ? 'error' : ''}
             />
             {showCnfPassword ? (
-              <FaEyeSlash className="toggle-password" onClick={()=>setCnfShowPassword(!showCnfPassword)} />
+              <FaEyeSlash className="toggle-password" onClick={() => setCnfShowPassword(!showCnfPassword)} />
             ) : (
-                <FaEye className="toggle-password" onClick={() => setCnfShowPassword(!showCnfPassword)} />
+              <FaEye className="toggle-password" onClick={() => setCnfShowPassword(!showCnfPassword)} />
             )}
           </div>
 
           <input type="number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder='Phone Number (Optional)' min="0" />
-          <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder='Company Name' className={errors.companyName ? 'error' : ''} />
+          <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder='Company Name(Optional)' />
           <label htmlFor="term">
             <input type="checkbox" name="term" id="term" required />
             By registering you with our<span>Terms and Conditions</span>

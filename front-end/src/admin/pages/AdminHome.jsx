@@ -81,7 +81,7 @@ const AdminHome = () => {
         };
 
         fetchData();
-    }, [timeRange]);
+    }, [timeRange, API_URL]);
 
     const handleTimeRangeChange = (event) => {
         setTimeRange(event.target.value);

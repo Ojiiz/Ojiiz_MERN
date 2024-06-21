@@ -40,7 +40,6 @@ const App = () => {
   }, [userLoading, AdminLoading]);
 
   if (!authChecked) {
-    // Hier kann bei Bedarf ein Ladeindikator angezeigt werden
     return <div>Loading...</div>;
   }
 

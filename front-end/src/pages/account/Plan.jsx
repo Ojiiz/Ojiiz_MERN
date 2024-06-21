@@ -31,7 +31,7 @@ const Plan = () => {
         }
 
         // Check if all required fields are filled
-        const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'password', 'confirmPassword', 'companyName'];
+        const requiredFields = ['firstName', 'lastName', 'userName', 'email', 'password', 'confirmPassword'];
         const emptyFields = requiredFields.filter(field => !formData[field]);
 
         if (emptyFields.length > 0) {
@@ -84,7 +84,7 @@ const Plan = () => {
             formData.planType = planType;
             formData.planPrice = planPrice;
             formData.planCredit = planCredit;
-            
+
             // For non-free plans, proceed with checkout session
             const stripe = await stripePromise;
 

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaGlobe, FaUserTie, FaAlignCenter, FaLock, FaPowerOff, FaFileExport } from "react-icons/fa6";
-import { LuAlertCircle } from "react-icons/lu";
+import { FaGlobe, FaUserTie, FaAlignCenter, FaLock, FaFileExport } from "react-icons/fa6";
 import rocket from '../assets/rocket.png';
 import { Link, useLocation } from 'react-router-dom';
-import { useLogout } from '../pages/account/context/AdminLogout'
 import { IoBookmark } from "react-icons/io5";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
