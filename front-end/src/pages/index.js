@@ -1,6 +1,6 @@
 export { default as Home } from "./Home";
-export { default as JobPages } from "./JobPages";
-export { default as JobDetail } from "./JobDetail";
+export { default as JobPages } from "./job/JobPages";
+export { default as JobDetail } from "./job/JobDetail";
 export { default as OverView } from "./OverView";
 export { default as ChoosePlan } from "./ChoosePlan";
 export { default as Payment } from "./Payment";

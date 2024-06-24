@@ -33,7 +33,8 @@ const {
     filterJobs,
     searchJobs,
     fetchFeatureJobs,
-    fetchTodayJobs
+    fetchTodayJobs,
+    deleteExpireJobs
 } = require('../controller/JobController');
 
 const {
@@ -85,6 +86,9 @@ router.post('/filter-job', filterJobs);
 router.get('/job', getAllJobs);
 router.put('/job/:id', updateJobById);
 router.delete('/delete-job/:id', deleteJobById);
+
+// delete 30 days ago jobs
+router.delete('/delete-expired-jobs', deleteExpireJobs)
 
 // user credits
 router.post('/deduct-credits', deductCredits);

@@ -374,3 +374,17 @@ table .action button {
     transform: translateX(1.4em);
     background-color: #fff;
 }
+
+.expire-jobs {
+    display: flex;
+    width: 70%;
+    height: 400px;
+    gap: 50px;
+    background-color: var(--secondary-color);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--primary-color);
+    border-radius: 20px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}

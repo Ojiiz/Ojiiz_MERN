@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { AdminSideBar, AdminTopBar } from '../components';
 import { FaUser } from "react-icons/fa6";
 import { HiMiniUserGroup } from "react-icons/hi2";
@@ -22,7 +22,7 @@ const AdminHome = () => {
     const [totalJobs, setTotalJobs] = useState(0);
     const [totalUsers, setTotalUsers] = useState(0);
     const [totalClients, setTotalClients] = useState(0);
-    const [chartData, setChartData] = useState([]);
+    const [clientsData, setClientsData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [timeRange, setTimeRange] = useState('day');
 
@@ -32,12 +32,11 @@ const AdminHome = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const totalJobsResponse = await fetch(`${API_URL}/api/ojiiz/all-job`,
-                    {
-                        headers: {
-                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
-                        },
-                    });
+                const totalJobsResponse = await fetch(`${API_URL}/api/ojiiz/all-job`, {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
                 if (totalJobsResponse.ok) {
                     const jobsData = await totalJobsResponse.json();
                     setTotalJobs(jobsData.length);
@@ -45,26 +44,24 @@ const AdminHome = () => {
                     console.error('Failed to fetch total jobs:', totalJobsResponse.statusText);
                 }
 
-                const clientsResponse = await fetch(`${API_URL}/api/ojiiz/client`,
-                    {
-                        headers: {
-                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
-                        },
-                    });
+                const clientsResponse = await fetch(`${API_URL}/api/ojiiz/client`, {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
                 if (clientsResponse.ok) {
                     const clientsData = await clientsResponse.json();
                     setTotalClients(clientsData.length);
-                    processDataForChart(clientsData, timeRange);
+                    setClientsData(clientsData);
                 } else {
                     console.error('Failed to fetch clients:', clientsResponse.statusText);
                 }
 
-                const usersResponse = await fetch(`${API_URL}/api/ojiiz/admin-user`,
-                    {
-                        headers: {
-                            'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
-                        },
-                    });
+                const usersResponse = await fetch(`${API_URL}/api/ojiiz/admin-user`, {
+                    headers: {
+                        'x-api-key': process.env.REACT_APP_AUTH_API_KEY,
+                    },
+                });
                 if (usersResponse.ok) {
                     const usersData = await usersResponse.json();
                     setTotalUsers(usersData.length);
@@ -81,16 +78,16 @@ const AdminHome = () => {
         };
 
         fetchData();
-    }, [timeRange, API_URL]);
+    }, [API_URL]);
 
     const handleTimeRangeChange = (event) => {
         setTimeRange(event.target.value);
     };
 
-    const processDataForChart = (clientsData, range) => {
-        const format = range === 'month' ? 'YYYY-MM' : 'YYYY-MM-DD';
+    const chartData = useMemo(() => {
+        const format = timeRange === 'month' ? 'YYYY-MM' : 'YYYY-MM-DD';
         const dateCountMap = clientsData.reduce((acc, client) => {
-            const date = moment(client.createdAt).startOf(range).format(format);
+            const date = moment(client.createdAt).startOf(timeRange).format(format);
             if (!acc[date]) {
                 acc[date] = 0;
             }
@@ -98,13 +95,11 @@ const AdminHome = () => {
             return acc;
         }, {});
 
-        const chartData = Object.keys(dateCountMap).map(date => ({
+        return Object.keys(dateCountMap).map(date => ({
             date,
             'Total Clients': dateCountMap[date],
         })).sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        setChartData(chartData);
-    };
+    }, [clientsData, timeRange]);
 
     return (
         <div className='admin-page'>

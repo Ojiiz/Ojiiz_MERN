@@ -5,13 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from "./pages/account/context/AuthContext";
 import { AdminAuthContextProvider } from './admin/pages/account/AdminAuthContext';
+import { FilterProvider } from './pages/account/context/FilterContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AdminAuthContextProvider>
       <AuthContextProvider>
-        <App />
+        <FilterProvider>
+          <App />
+        </FilterProvider>
       </AuthContextProvider>
     </AdminAuthContextProvider>
   </React.StrictMode>

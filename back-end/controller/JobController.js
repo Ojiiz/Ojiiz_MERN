@@ -14,7 +14,7 @@ const addJob = async (req, res) => {
 // Controller function to fetch all jobs
 const getAllJobs = async (req, res) => {
     try {
-        const jobs = await Job.find();
+        const jobs = await Job.find().sort({ jobDate: -1 });
         res.json(jobs);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -211,6 +211,24 @@ const fetchFeatureJobs = async (req, res) => {
     }
 };
 
+const deleteExpireJobs = async (req, res) => {
+    const { daysAgo } = req.body;
+
+    try {
+        // Calculate the date 30 days ago from today
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() - daysAgo);
+
+        // Delete jobs older than the expiry date
+        const deleteResult = await Job.deleteMany({ jobDate: { $lte: expiryDate } });
+
+        res.status(200).json({ message: `Deleted ${deleteResult.deletedCount} expired jobs.` });
+    } catch (error) {
+        console.error('Error deleting expired jobs:', error);
+        res.status(500).json({ error: 'Failed to delete expired jobs.' });
+    }
+};
+
 module.exports = {
     addJob,
     getAllJobs,
@@ -221,5 +239,6 @@ module.exports = {
     filterJobs,
     searchJobs,
     fetchFeatureJobs,
-    fetchTodayJobs
+    fetchTodayJobs,
+    deleteExpireJobs
 };

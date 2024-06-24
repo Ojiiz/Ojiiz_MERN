@@ -26,7 +26,7 @@ import {
 import { ScrollToTop } from "./components";
 import { useAuthContext } from "./hooks/useAuthContext";
 import { useAdminAuthContext } from "./hooks/useAdminAuthContext";
-import { AdminHome, AdminJobs, AdminLogin, AdminPasswordChange, Client, User } from "./admin/pages";
+import { AdminHome, AdminJobs, AdminLogin, AdminPasswordChange, Client, DeleteJobs, User } from "./admin/pages";
 
 const App = () => {
   const { ojiiz_user, loading: userLoading } = useAuthContext();
@@ -40,6 +40,7 @@ const App = () => {
   }, [userLoading, AdminLoading]);
 
   if (!authChecked) {
+    // Hier kann bei Bedarf ein Ladeindikator angezeigt werden
     return <div>Loading...</div>;
   }
 
@@ -219,6 +220,12 @@ const App = () => {
 
         <Route path="/admin-profile" element={ojiiz_admin ? (
           <AdminPasswordChange />
+        ) : (
+          <Navigate to="/admin-login" />
+        )} />
+
+        <Route path="/expire" element={ojiiz_admin ? (
+          <DeleteJobs />
         ) : (
           <Navigate to="/admin-login" />
         )} />

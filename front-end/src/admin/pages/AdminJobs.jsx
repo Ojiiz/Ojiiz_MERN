@@ -143,6 +143,7 @@ const AdminJobs = () => {
                                     <th>Job Category</th>
                                     <th>Company Name</th>
                                     <th>Email</th>
+                                    <th>Date</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -154,6 +155,7 @@ const AdminJobs = () => {
                                         <td>{job.jobCategory}</td>
                                         <td>{job.companyName}</td>
                                         <td>{job.email}</td>
+                                        <td>{job.jobDate.split('T')[0]}</td>
                                         <td>
                                             <MdDelete
                                                 size={24}

@@ -8,6 +8,7 @@ import { RxDashboard } from "react-icons/rx";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { LiaBandcamp } from "react-icons/lia";
 import { LuLogOut } from "react-icons/lu";
+import { IoWarning } from "react-icons/io5";
 
 const AdminSideBar = () => {
     const [activeLink, setActiveLink] = useState('');
@@ -41,6 +42,10 @@ const AdminSideBar = () => {
 
                 <Link to={"/user"}>
                     <li className={activeLink === '/user' ? 'active' : ''}><FaUser size={20} />User</li>
+                </Link>
+
+                <Link to={"/expire"}>
+                    <li className={activeLink === '/expire' ? 'active' : ''}><IoWarning size={20} />Expired</li>
                 </Link>
 
                 <li onClick={handleClickLogout}><LuLogOut size={20} />Log Out</li>
